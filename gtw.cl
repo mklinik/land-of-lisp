@@ -11,6 +11,7 @@
 (defparameter *cop-odds* 15)
 
 (defparameter *sirens-symbol* '|\\nsirens!|)
+(defparameter *blood-symbol* '|\\nblood!|)
 
 (defun random-node ()
   (1+ (random *node-num*)))
@@ -107,13 +108,13 @@
     (loop for n from 1 to *node-num*
         collect (append (list n)
                         (cond ((equal n wumpus) '(wumpus))
-                              ((within-two n wumpus edge-alist) '(|\\nblood!|)))
+                              ((within-two n wumpus edge-alist) (list *blood-symbol* '(fillcolor "#ffcccc") '(style filled))))
                         (cond ((member n glow-worms) '(|\\nglow-worm|))
                               ((some (lambda (worm)
                                        (within-one n worm edge-alist))
                                      glow-worms)
                                  '(|\\nlights!|)))
-                        (when (some #'cdr (cdr (assoc n edge-alist))) (list *sirens-symbol*))))))
+                        (when (some #'cdr (cdr (assoc n edge-alist))) (list *sirens-symbol* '(color blue)))))))
 
 (defun new-game ()
   (setf *congestion-city-edges* (make-city-edges))
@@ -137,7 +138,7 @@
             (if (member node *visited-nodes*)
                 (let ((n (assoc node *congestion-city-nodes*)))
                   (if (eql node *player-pos*)
-                      (append n '(*))
+                      (append n '(*) '((penwidth 3.0)))
                       n))
                 (list node '|\\n| '?)))
           (remove-duplicates

@@ -11,13 +11,36 @@
             s)))
     ""))
 
+(defun dot-attrs (exp)
+  (if exp
+    (let ((attrs (remove-if-not #'listp exp)))
+      (dot-attributes attrs))
+    ""))
+
+;; format a list of 2-element-lists
+;; '((penwidth 2.0) (fillcolor blue) (style filled))
+;; becomes
+;; " penwidth=2.0 fillcolor=blue style=filled "
+;; for convenience, spaces are emitted at both ends of the result
+(defun dot-attributes (attributes)
+  (apply #'concatenate (cons 'string (mapcar #'dot-attribute attributes))))
+
+(defun dot-attribute (attr)
+ (concatenate 'string " "
+                      (write-to-string (car attr) :case :downcase)
+                      "="
+                      (write-to-string (cadr attr) :case :downcase)
+                      " "))
+
 (defun nodes->dot (nodes)
   (mapc (lambda (node)
           (fresh-line)
           (princ (dot-name (car node)))
           (princ "[label=\"")
           (princ (dot-label node))
-          (princ "\"];"))
+          (princ "\"")
+          (princ (dot-attrs node))
+          (princ "];"))
          nodes))
 
 (defun edges->dot (edges)
