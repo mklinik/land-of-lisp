@@ -10,6 +10,8 @@
 (defparameter *worm-num* 3)
 (defparameter *cop-odds* 15)
 
+(defparameter *sirens-symbol* '|\\nsirens!|)
+
 (defun random-node ()
   (1+ (random *node-num*)))
 
@@ -105,13 +107,13 @@
     (loop for n from 1 to *node-num*
         collect (append (list n)
                         (cond ((equal n wumpus) '(wumpus))
-                              ((within-two n wumpus edge-alist) '(blood!)))
-                        (cond ((member n glow-worms) '(glow-worm))
+                              ((within-two n wumpus edge-alist) '(|\\nblood!|)))
+                        (cond ((member n glow-worms) '(|\\nglow-worm|))
                               ((some (lambda (worm)
                                        (within-one n worm edge-alist))
                                      glow-worms)
-                                 '(lights!)))
-                        (when (some #'cdr (cdr (assoc n edge-alist))) '(sirens!))))))
+                                 '(|\\nlights!|)))
+                        (when (some #'cdr (cdr (assoc n edge-alist))) (list *sirens-symbol*))))))
 
 (defun new-game ()
   (setf *congestion-city-edges* (make-city-edges))
@@ -137,7 +139,7 @@
                   (if (eql node *player-pos*)
                       (append n '(*))
                       n))
-                (list node '?)))
+                (list node '|\\n| '?)))
           (remove-duplicates
             (append *visited-nodes*
                     (mapcan (lambda (node)
@@ -174,15 +176,15 @@
 
 (defun handle-new-place (edge pos charging)
   (let* ((node (assoc pos *congestion-city-nodes*))
-         (has-worm (and (member 'glow-worm node)
+         (has-worm (and (member '|\\nglow-worm| node)
                         (not (member pos *visited-nodes*)))))
     (pushnew pos *visited-nodes*)
     (setf *player-pos* pos)
     (draw-known-city)
     (cond ((member 'cops edge) (princ "You ran into the cops. Game Over."))
           ((member 'wumpus node) (if charging
-                                     (princ "You found the Wumpus!")
-                                     (princ "You ran into the Wumpus!")))
+                                     (princ "You defeated the Wumpus!")
+                                     (princ "The Wumpus got you! Game Over")))
           (charging (princ "You wasted your last bullet. Game Over."))
           (has-worm (let ((new-pos (random-node)))
                       (princ "You ran into a Glow Worm Gang! You're now at ")

@@ -1,13 +1,14 @@
 (defun dot-name (exp)
   (substitute-if #\_ (complement #'alphanumericp) (prin1-to-string exp)))
 
-(defparameter *max-label-length* 30)
+(defparameter *max-label-length* 40)
 (defun dot-label (exp)
   (if exp
-    (let ((s (write-to-string exp :pretty nil)))
-      (if (> (length s) *max-label-length*)
-          (concatenate 'string (subseq s 0 (- *max-label-length* 3)) "...")
-          s))
+    (let ((label (remove-if #'listp exp)))
+      (let ((s (remove-if (lambda (x) (or (eq '#\( x) (eq '#\) x))) (write-to-string label :pretty nil :escape nil))))
+        (if (> (length s) *max-label-length*)
+            (concatenate 'string (subseq s 0 (- *max-label-length* 3)) "...")
+            s)))
     ""))
 
 (defun nodes->dot (nodes)
@@ -44,7 +45,7 @@
                    :direction :output
                    :if-exists :supersede)
     (funcall thunk))
-  (ext:shell (concatenate 'string "dot -Tpng -O " fname)))
+  (ext:shell (concatenate 'string "dot -Tsvg -O " fname)))
 
 (defun graph->png (fname nodes edges)
   (dot->png fname (lambda () (graph->dot nodes edges))))
