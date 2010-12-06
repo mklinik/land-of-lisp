@@ -24,6 +24,14 @@
   (apply #'append (loop repeat *edge-num*
                         collect (edge-pair (random-node) (random-node)))))
 
+(defun hash-edges (edge-list)
+  (let ((tab (make-hash-table)))
+    (mapc (lambda (x)
+            (let ((node (car x)))
+              (push (cdr x) (gethash node tab))))
+          edge-list)
+    tab))
+
 (defun direct-edges (node edge-list)
   (remove-if-not (lambda (x) (eql (car x) node))
                  edge-list))
@@ -36,6 +44,17 @@
                  (mapc (lambda (edge)
                          (traverse (cdr edge)))
                        (direct-edges node edge-list)))))
+      (traverse node))
+    visited))
+
+(defun get-connected-hash (node edge-tab)
+  (let ((visited (make-hash-table)))
+    (labels ((traverse (node)
+               (unless (gethash node visited)
+                 (setf (gethash node visited) t)
+                 (mapc (lambda (edge)
+                         (traverse edge))
+                       (gethash node edge-tab)))))
       (traverse node))
     visited))
 
