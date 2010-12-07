@@ -210,6 +210,25 @@
            (princ "A brigand cuts your arm with his whip, taking off 2 strength points! ")
            (decf *player-strength* 2)))))
 
+(defstruct (healslime (:include monster)) (healpower (randval 5)))
+(push #'make-healslime *monster-builders*)
+
+(defmethod monster-show ((m healslime))
+  (princ "A healslime with a heal power of ")
+  (princ (healslime-healpower m))
+  (princ ". "))
+
+(defmethod monster-attack ((m healslime))
+  (let ((heal (randval (healslime-healpower m)))
+        (revive (randval 4)))
+    (if (= 1 revive)
+        (let ((dead-monsters (remove-if-not #'monster-dead *monsters*)))
+          (setf (monster-health (aref dead-monsters (random (length dead-monsters)))) 1)
+          (princ "A healslime revives a monster! "))
+        (progn (princ "A healslime heals you by ")
+         (princ heal)
+         (princ " health points. ")
+         (incf *player-health* heal)))))
     
 
 ;; vim: set expandtab ts=2 sw=2:
