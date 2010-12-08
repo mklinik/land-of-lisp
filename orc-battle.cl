@@ -220,10 +220,10 @@
 
 (defmethod monster-attack ((m healslime))
   (let ((heal (randval (healslime-healpower m)))
-        (revive (randval 1)))
+        (revive (randval 4)))
     (if (= 1 revive)
         (let ((dead-monsters (remove-if-not #'monster-dead *monsters*)))
-          (if (< 0 (length dead-monsters))
+          (if (> (length dead-monsters) 0)
             (progn (setf (monster-health (aref dead-monsters (random (length dead-monsters)))) 1)
                    (princ "A healslime revives a monster! "))
             (princ "A healslime doesn't know what to do. ")))
