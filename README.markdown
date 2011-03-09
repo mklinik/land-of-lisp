@@ -26,7 +26,7 @@ Grand Theft Wumpus is a remake of the classic Hunt The Wumpus, with a different
 background story, but without the dodecahedron map. Instead, the map is a
 randomly generated graph. Every game looks different.
 
-![screenshot of the game](known-city2.png)
+![screenshot of the game](https://github.com/mklinik/land-of-lisp/raw/master/known-city2.png)
 
 #### Differences to the game from the book
 
